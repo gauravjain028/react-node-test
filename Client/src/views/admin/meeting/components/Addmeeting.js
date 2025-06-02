@@ -43,13 +43,28 @@ const AddMeeting = (props) => {
         initialValues: initialValues,
         validationSchema: MeetingSchema,
         onSubmit: (values, { resetForm }) => {
-            
+            AddData(values)
         },
     });
     const { errors, touched, values, handleBlur, handleChange, handleSubmit, setFieldValue } = formik
 
     const AddData = async () => {
-
+        try {
+            setIsLoding(true)
+            let response = await postApi('api/meeting/add', values)
+            if (response.status === 200) {
+                onClose();
+                toast.success(`Meeting saved successfully`)
+                formik.resetForm();
+                setAction((pre) => !pre)
+            }
+        } catch (e) {
+            console.log(e);
+            toast.error(`server error`)
+        }
+        finally {
+            setIsLoding(false)
+        }
     };
 
     const fetchAllData = async () => {
@@ -57,8 +72,12 @@ const AddMeeting = (props) => {
     }
 
     useEffect(() => {
-
-    }, [props.id, values.related])
+        if (values.related === "Contact") {
+            setContactData(contactList || []);
+        } else if (values.related === "Lead") {
+            setLeadData(leadData || []);
+        }
+    }, [values.related, contactList, leadData]);
 
     const extractLabels = (selectedItems) => {
         return selectedItems.map((item) => item._id);
@@ -67,7 +86,7 @@ const AddMeeting = (props) => {
     const countriesWithEmailAsLabel = (values.related === "Contact" ? contactdata : leaddata)?.map((item) => ({
         ...item,
         value: item._id,
-        label: values.related === "Contact" ? `${item.firstName} ${item.lastName}` : item.leadName,
+        label: values.related === "Contact" ? `${item.fullName}` : item.leadName,
     }));
 
     return (

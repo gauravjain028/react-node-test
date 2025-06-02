@@ -1,0 +1,37 @@
+version: '3.8'
+
+services:
+  client:
+    build:
+      context: ./Client
+      dockerfile: Dockerfile
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./Client:/app
+      - /app/node_modules
+    depends_on:
+      - server
+
+  server:
+    build:
+      context: ./Server
+      dockerfile: Dockerfile
+    ports:
+      - "5001:5001"
+    volumes:
+      - ./Server:/app
+      - server_node_modules:/app/node_modules
+    depends_on:
+      - mongodb
+
+  mongodb:
+    image: mongo:latest
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongodb_data:/data/db
+
+volumes:
+  mongodb_data:
+  server_node_modules: 
