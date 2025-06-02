@@ -88,7 +88,7 @@ const view = async (req, res) => {
             },
             {
                 $lookup: {
-                  from: 'Leads', // make sure this matches your collection name
+                  from: 'Leads',
                   let: { leadIds: '$attendesLead' },
                   pipeline: [
                     {
